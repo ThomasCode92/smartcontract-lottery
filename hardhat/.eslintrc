@@ -1,0 +1,15 @@
+{
+  "env": { "node": true, "es6": true },
+  "parserOptions": { "ecmaVersion": "latest" },
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["prettier"],
+  "overrides": [
+    {
+      "files": ["test/*/**.{spec,test}.js"],
+      "env": { "mocha": true }
+    }
+  ],
+  "rules": {
+    "prettier/prettier": "warn"
+  }
+}
