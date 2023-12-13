@@ -4,14 +4,16 @@
   "version": "1.0.0",
   "author": "ThomasCode92",
   "scripts": {
-    "install-hardhat": "yarn --cwd hardhat install",
-    "install-all":"yarn --cwd . && yarn install-hardhat"
+    "add:hardhat": "yarn --cwd hardhat add ",
+    "install:hardhat": "yarn --cwd hardhat install ",
+    "install:all":"yarn --cwd . && yarn install:hardhat"
   },
   "devDependencies": {
     "eslint": "^8.55.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.0.1",
     "prettier": "^3.1.1",
-    "prettier-plugin-solidity": "^1.2.0"
+    "prettier-plugin-solidity": "^1.2.0",
+    "typescript": "^5.3.3"
   }
 }
