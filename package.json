@@ -6,7 +6,9 @@
   "scripts": {
     "add:hardhat": "yarn --cwd hardhat add ",
     "install:hardhat": "yarn --cwd hardhat install ",
-    "install:all":"yarn --cwd . && yarn install:hardhat"
+    "install:all":"yarn --cwd . && yarn install:hardhat",
+    "hardhat": "yarn --cwd hardhat hardhat",
+    "solhint": "yarn --cwd hardhat solhint"
   },
   "devDependencies": {
     "eslint": "^8.55.0",

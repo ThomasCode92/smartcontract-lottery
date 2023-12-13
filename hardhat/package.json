@@ -2,6 +2,9 @@
   "name": "hardhat-smartcontract-lottery",
   "description": "Hardhat project to develop, compile, deploy and test a lottery smart contract",
   "version": "1.0.0",
+  "scripts": {
+    "solhint": "solhint 'contracts/**/*.sol'"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "npm:hardhat-deploy-ethers",
     "@nomiclabs/hardhat-etherscan": "^3.1.8",
