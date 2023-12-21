@@ -8,6 +8,7 @@
 pragma solidity ^0.8.18;
 
 import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
+import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
 
 error Raffle_NotEnoughETHEntered();
 
@@ -15,15 +16,31 @@ contract Raffle is VRFConsumerBaseV2 {
     /* State Variables */
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
+    VRFCoordinatorV2Interface private immutable i_vrfCoordinator;
+    bytes32 private immutable i_gasLane;
+    uint64 private immutable i_subscriptionId;
+    uint32 private immutable i_callbackGasLimit;
+
+    /* Constants */
+    uint16 private constant REQUEST_CONFIRMATIONS = 3;
+    uint32 private constant NUM_WORDS = 1;
 
     /* Events */
     event RaffleEnter(address indexed player);
+    event RequestedRaffleWinner(uint256 indexed requestId);
 
     constructor(
         address vrfCoordinator,
-        uint256 entranceFee
+        uint256 entranceFee,
+        bytes32 gasLane,
+        uint64 subscriptionId,
+        uint32 callbackGasLimit
     ) VRFConsumerBaseV2(vrfCoordinator) {
         i_entranceFee = entranceFee;
+        i_vrfCoordinator = VRFCoordinatorV2Interface(vrfCoordinator);
+        i_gasLane = gasLane;
+        i_subscriptionId = subscriptionId;
+        i_callbackGasLimit = callbackGasLimit;
     }
 
     /* Functions */
@@ -35,8 +52,16 @@ contract Raffle is VRFConsumerBaseV2 {
 
     function requestRandomWinner() external {
         // Request the random number from the oracle
+        uint256 requestId = i_vrfCoordinator.requestRandomWords(
+            i_gasLane,
+            i_subscriptionId,
+            REQUEST_CONFIRMATIONS,
+            i_callbackGasLimit,
+            NUM_WORDS
+        );
+
         // Once we get it, do somethign with it
-        // 2 transaction process
+        emit RequestedRaffleWinner(requestId);
     }
 
     function fulfillRandomWords(
