@@ -13,8 +13,15 @@ import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 error Raffle_NotEnoughETHEntered();
 error Raffle_TransferFailed();
+error Raffle_NotOpen();
 
 contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
+    /* Type Declarations */
+    enum RaffleState {
+        OPEN,
+        CALCULATING
+    }
+
     /* State Variables */
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
@@ -25,6 +32,7 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
 
     /* Lottery variables */
     address private s_recentWinner;
+    RaffleState private s_raffleState;
 
     /* Constants */
     uint16 private constant REQUEST_CONFIRMATIONS = 3;
@@ -47,11 +55,15 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
         i_gasLane = gasLane;
         i_subscriptionId = subscriptionId;
         i_callbackGasLimit = callbackGasLimit;
+
+        s_raffleState = RaffleState.OPEN;
     }
 
     /* Functions */
     function enterRaffle() public payable {
         if (msg.value < i_entranceFee) revert Raffle_NotEnoughETHEntered();
+        if (s_raffleState != RaffleState.OPEN) revert Raffle_NotOpen();
+
         s_players.push(payable(msg.sender));
         emit RaffleEnter(msg.sender);
     }
@@ -71,6 +83,8 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
     function performUpkeep(bytes calldata performData) external override {}
 
     function requestRandomWinner() external {
+        s_raffleState = RaffleState.CALCULATING;
+
         // Request the random number from the oracle
         uint256 requestId = i_vrfCoordinator.requestRandomWords(
             i_gasLane,
@@ -92,6 +106,9 @@ contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
         uint256 winnerIdx = randomWords[0] % s_players.length;
         address payable recentWinner = s_players[winnerIdx];
         s_recentWinner = recentWinner;
+
+        s_raffleState = RaffleState.OPEN;
+        s_players = new address payable[](0);
 
         // Transfer the balance to the winner
         (bool success, ) = recentWinner.call{value: address(this).balance}("");
