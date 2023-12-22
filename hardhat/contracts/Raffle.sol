@@ -9,11 +9,12 @@ pragma solidity ^0.8.18;
 
 import "@chainlink/contracts/src/v0.8/vrf/VRFConsumerBaseV2.sol";
 import "@chainlink/contracts/src/v0.8/interfaces/VRFCoordinatorV2Interface.sol";
+import "@chainlink/contracts/src/v0.8/automation/AutomationCompatible.sol";
 
 error Raffle_NotEnoughETHEntered();
 error Raffle_TransferFailed();
 
-contract Raffle is VRFConsumerBaseV2 {
+contract Raffle is VRFConsumerBaseV2, AutomationCompatible {
     /* State Variables */
     uint256 private immutable i_entranceFee;
     address payable[] private s_players;
@@ -54,6 +55,20 @@ contract Raffle is VRFConsumerBaseV2 {
         s_players.push(payable(msg.sender));
         emit RaffleEnter(msg.sender);
     }
+
+    /**
+     * @dev checkUpkeep is called by the Chainlink Automation nodes to determine if the upkeep should be performed.
+     * The following must be true for it to return true:
+     * - Time interval should have passed
+     * - Lottery should have at least one player, and have some ETH
+     * - Subscription should be funded with LINK
+     * - Lottery should be in an 'open' state
+     */
+    function checkUpkeep(
+        bytes calldata checkData
+    ) external override returns (bool upkeepNeeded, bytes memory performData) {}
+
+    function performUpkeep(bytes calldata performData) external override {}
 
     function requestRandomWinner() external {
         // Request the random number from the oracle
